@@ -119,7 +119,7 @@ export default function SymptomsPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Call 911 immediately if you experience:
+                  Call emergency services immediately if you experience:
                 </p>
                 <ul className="space-y-2 text-sm">
                   {[
@@ -141,6 +141,15 @@ export default function SymptomsPage() {
                     </motion.li>
                   ))}
                 </ul>
+                <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-900 space-y-2">
+                  <p className="font-semibold text-red-700 dark:text-red-400 text-sm">Indian Emergency Numbers:</p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="px-2 py-1 rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 font-medium">112 - National Emergency</span>
+                    <span className="px-2 py-1 rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 font-medium">102 - Ambulance</span>
+                    <span className="px-2 py-1 rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 font-medium">108 - Emergency Ambulance</span>
+                    <span className="px-2 py-1 rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 font-medium">100 - Police</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

@@ -10,7 +10,7 @@ import {
   MapPin,
   Phone,
   Clock,
-  DollarSign,
+  IndianRupee,
   Building2
 } from "lucide-react"
 
@@ -88,7 +88,7 @@ export default function ClinicsPage() {
               <CardContent>
                 <ul className="space-y-4 text-sm">
                   {[
-                    { icon: DollarSign, title: "Community Health Centers", desc: "Often offer sliding-scale fees based on income" },
+                    { icon: IndianRupee, title: "Government & Community Centers", desc: "Often offer affordable fees based on income" },
                     { icon: Clock, title: "Walk-in Clinics", desc: "No appointment needed, great for minor issues" },
                     { icon: Phone, title: "Call Ahead", desc: "Ask about self-pay rates and payment plans" },
                   ].map((item, idx) => (
@@ -120,9 +120,9 @@ export default function ClinicsPage() {
               <CardContent>
                 <div className="space-y-3 text-sm">
                   {[
-                    { label: "$ Affordable", price: "Under $75", color: "text-green-600 dark:text-green-400", bg: "bg-green-500" },
-                    { label: "$$ Moderate", price: "$75 - $150", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500" },
-                    { label: "$$$ Premium", price: "$150+", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500" },
+                    { label: "Affordable", price: "Under 100", color: "text-green-600 dark:text-green-400", bg: "bg-green-500" },
+                    { label: "Moderate", price: "100 - 1000", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500" },
+                    { label: "Premium", price: "1000+", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500" },
                   ].map((tier, idx) => (
                     <motion.div 
                       key={idx}
@@ -151,7 +151,7 @@ export default function ClinicsPage() {
                 <CardTitle className="text-lg">Need Immediate Help?</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 text-sm">
+                <div className="space-y-3 text-sm">
                   <motion.div 
                     className="flex items-center gap-3 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900"
                     whileHover={{ scale: 1.02 }}
@@ -160,9 +160,23 @@ export default function ClinicsPage() {
                       <Phone className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-red-700 dark:text-red-400">Emergency: 911</p>
+                      <p className="font-bold text-red-700 dark:text-red-400">112 - National Emergency</p>
                       <p className="text-muted-foreground text-xs">
-                        For life-threatening emergencies
+                        For all emergencies (Police, Fire, Ambulance)
+                      </p>
+                    </div>
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="h-11 w-11 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                      <Phone className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-orange-700 dark:text-orange-400">102 / 108 - Ambulance</p>
+                      <p className="text-muted-foreground text-xs">
+                        Free ambulance service across India
                       </p>
                     </div>
                   </motion.div>
@@ -174,9 +188,9 @@ export default function ClinicsPage() {
                       <Phone className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <p className="font-bold">Health Line: 811</p>
+                      <p className="font-bold">100 - Police</p>
                       <p className="text-muted-foreground text-xs">
-                        Free health advice 24/7
+                        Police emergency helpline
                       </p>
                     </div>
                   </motion.div>

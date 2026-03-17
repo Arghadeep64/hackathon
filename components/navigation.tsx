@@ -1,17 +1,35 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { 
   Timer, 
   Activity, 
   Stethoscope, 
   MapPin, 
-  Trophy,
-  Leaf
+  Leaf,
+  LogIn,
+  LogOut,
+  User,
+  Loader2
 } from "lucide-react"
+import { SignInDialog } from "@/components/sign-in-dialog"
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Activity },
@@ -19,6 +37,150 @@ const navItems = [
   { href: "/symptoms", label: "Symptom Triage", icon: Stethoscope },
   { href: "/clinics", label: "Find Clinics", icon: MapPin },
 ]
+
+function AuthButton() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const { toast } = useToast()
+  const router = useRouter()
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setIsLoading(false)
+    })
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      setUser(null)
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully.",
+      })
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
+
+  const handleAuthStateChange = (newUser: SupabaseUser) => {
+    setUser(newUser)
+  }
+
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"
+      >
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+      </motion.div>
+    )
+  }
+
+  if (user) {
+    const initials = user.user_metadata?.full_name
+      ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+      : user.email?.slice(0, 2).toUpperCase() || 'U'
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <motion.button
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            <Avatar className="h-9 w-9 border-2 border-primary/20">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-sm font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </motion.button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              {user.user_metadata?.full_name && (
+                <p className="text-sm font-medium leading-none">{user.user_metadata.full_name}</p>
+              )}
+              <p className="text-xs text-muted-foreground leading-none">
+                {user.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="gap-2" disabled>
+            <User className="h-4 w-4" />
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem 
+            className="gap-2 text-destructive focus:text-destructive"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+          >
+            {isSigningOut ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+      >
+        <Button 
+          variant="default" 
+          size="sm" 
+          className="gap-2"
+          onClick={() => setIsOpen(true)}
+        >
+          <LogIn className="h-4 w-4" />
+          <span className="hidden sm:inline">Sign In</span>
+        </Button>
+      </motion.div>
+      <SignInDialog 
+        open={isOpen} 
+        onOpenChange={setIsOpen}
+        onAuthStateChange={handleAuthStateChange}
+      />
+    </>
+  )
+}
 
 export function Navigation() {
   const pathname = usePathname()
@@ -74,16 +236,7 @@ export function Navigation() {
           })}
         </nav>
 
-        <motion.div 
-          className="flex items-center gap-3"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-primary/20 shadow-sm">
-            <Trophy className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold">40 pts</span>
-          </div>
-        </motion.div>
+        <AuthButton />
       </div>
 
       {/* Mobile Navigation */}
