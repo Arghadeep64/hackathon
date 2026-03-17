@@ -421,18 +421,31 @@ export function SymptomChecker() {
                         Seek Immediate Medical Attention
                       </p>
                       <p className="text-sm text-red-600 dark:text-red-300 mt-1">
-                        Based on your symptoms, you should consider calling 112 (National Emergency) or 102 (Ambulance) or going to the nearest emergency room immediately.
+                        Based on your symptoms, you should consider calling emergency services or going to the nearest emergency room immediately.
                       </p>
-                      <div className="flex gap-2 mt-3">
-                        <Button variant="destructive" size="sm" className="gap-2">
-                          <Phone className="h-4 w-4" />
-                          Call 112
-                        </Button>
-                        <Button variant="outline" size="sm" className="gap-2 border-red-300 text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950">
-                          <Phone className="h-4 w-4" />
-                          Call 102 (Ambulance)
-                        </Button>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <a href="tel:112">
+                          <Button variant="destructive" size="sm" className="gap-2">
+                            <Phone className="h-4 w-4" />
+                            112 - Emergency
+                          </Button>
+                        </a>
+                        <a href="tel:102">
+                          <Button variant="outline" size="sm" className="gap-2 border-red-300 text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950">
+                            <Phone className="h-4 w-4" />
+                            102 - Ambulance
+                          </Button>
+                        </a>
+                        <a href="tel:108">
+                          <Button variant="outline" size="sm" className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-100 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950">
+                            <Phone className="h-4 w-4" />
+                            108 - Emergency Ambulance
+                          </Button>
+                        </a>
                       </div>
+                      <p className="text-xs text-red-600/70 dark:text-red-400/70 mt-2">
+                        Police: 100 | Women Helpline: 1091 | Child Helpline: 1098
+                      </p>
                     </div>
                   </motion.div>
                 )}

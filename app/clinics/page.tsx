@@ -151,7 +151,7 @@ export default function ClinicsPage() {
                 <CardTitle className="text-lg">Need Immediate Help?</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 text-sm">
+                <div className="space-y-3 text-sm">
                   <motion.div 
                     className="flex items-center gap-3 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900"
                     whileHover={{ scale: 1.02 }}
@@ -160,9 +160,23 @@ export default function ClinicsPage() {
                       <Phone className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-red-700 dark:text-red-400">Emergency: 911</p>
+                      <p className="font-bold text-red-700 dark:text-red-400">112 - National Emergency</p>
                       <p className="text-muted-foreground text-xs">
-                        For life-threatening emergencies
+                        For all emergencies (Police, Fire, Ambulance)
+                      </p>
+                    </div>
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="h-11 w-11 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                      <Phone className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-orange-700 dark:text-orange-400">102 / 108 - Ambulance</p>
+                      <p className="text-muted-foreground text-xs">
+                        Free ambulance service across India
                       </p>
                     </div>
                   </motion.div>
@@ -174,9 +188,9 @@ export default function ClinicsPage() {
                       <Phone className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <p className="font-bold">Health Line: 811</p>
+                      <p className="font-bold">100 - Police</p>
                       <p className="text-muted-foreground text-xs">
-                        Free health advice 24/7
+                        Police emergency helpline
                       </p>
                     </div>
                   </motion.div>
