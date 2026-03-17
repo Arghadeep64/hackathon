@@ -64,6 +64,8 @@ export function SignInDialog({ open, onOpenChange, onAuthStateChange }: SignInDi
         description: "You have successfully signed in.",
       })
 
+      console.log("[v0] Sign in successful:", data.user?.email)
+      
       if (onAuthStateChange && data.user) {
         onAuthStateChange(data.user)
       }
@@ -72,6 +74,8 @@ export function SignInDialog({ open, onOpenChange, onAuthStateChange }: SignInDi
         setIsSuccess(false)
         onOpenChange(false)
         setSignInForm({ email: "", password: "" })
+        // Force a page refresh to update auth state across all components
+        window.location.reload()
       }, 1500)
     } catch (err: any) {
       setError(err.message || "Failed to sign in. Please try again.")
