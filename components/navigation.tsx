@@ -50,15 +50,13 @@ function AuthButton() {
     const supabase = createClient()
     
     // Get initial session
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      console.log("[v0] Initial user state:", user ? user.email : "not logged in")
-      setUser(user)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
       setIsLoading(false)
     })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[v0] Auth state changed:", event, session?.user?.email)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
