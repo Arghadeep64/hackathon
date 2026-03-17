@@ -10,7 +10,7 @@ import {
   MapPin,
   Phone,
   Clock,
-  DollarSign,
+  IndianRupee,
   Building2
 } from "lucide-react"
 
@@ -88,7 +88,7 @@ export default function ClinicsPage() {
               <CardContent>
                 <ul className="space-y-4 text-sm">
                   {[
-                    { icon: DollarSign, title: "Community Health Centers", desc: "Often offer sliding-scale fees based on income" },
+                    { icon: IndianRupee, title: "Government & Community Centers", desc: "Often offer affordable fees based on income" },
                     { icon: Clock, title: "Walk-in Clinics", desc: "No appointment needed, great for minor issues" },
                     { icon: Phone, title: "Call Ahead", desc: "Ask about self-pay rates and payment plans" },
                   ].map((item, idx) => (
@@ -120,9 +120,9 @@ export default function ClinicsPage() {
               <CardContent>
                 <div className="space-y-3 text-sm">
                   {[
-                    { label: "$ Affordable", price: "Under $75", color: "text-green-600 dark:text-green-400", bg: "bg-green-500" },
-                    { label: "$$ Moderate", price: "$75 - $150", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500" },
-                    { label: "$$$ Premium", price: "$150+", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500" },
+                    { label: "Affordable", price: "Under 100", color: "text-green-600 dark:text-green-400", bg: "bg-green-500" },
+                    { label: "Moderate", price: "100 - 1000", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500" },
+                    { label: "Premium", price: "1000+", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500" },
                   ].map((tier, idx) => (
                     <motion.div 
                       key={idx}

@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
+import { useEffect, useMemo } from "react"
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet"
 import { Icon, LatLngExpression } from "leaflet"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -30,6 +30,7 @@ interface ClinicMapProps {
   clinics: Clinic[]
   selectedClinic?: string | null
   onSelectClinic?: (id: string) => void
+  userLocation?: { lat: number; lng: number } | null
 }
 
 // Custom marker icon
@@ -37,6 +38,15 @@ const createCustomIcon = (isSelected: boolean) => new Icon({
   iconUrl: isSelected 
     ? "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png"
     : "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+})
+
+const userLocationIcon = new Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
@@ -54,35 +64,35 @@ function MapController({ center, zoom }: { center: LatLngExpression; zoom: numbe
   return null
 }
 
-export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMapProps) {
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
-  const [isLocating, setIsLocating] = useState(false)
-  
-  // Default center (New Delhi, India)
-  const defaultCenter: [number, number] = [28.6139, 77.2090]
-  const center = userLocation || defaultCenter
-  
-  const handleLocate = () => {
-    setIsLocating(true)
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation([position.coords.latitude, position.coords.longitude])
-          setIsLocating(false)
-        },
-        () => {
-          setIsLocating(false)
-        }
-      )
+export function ClinicMap({ clinics, selectedClinic, onSelectClinic, userLocation }: ClinicMapProps) {
+  // Calculate map center based on user location or first clinic
+  const center = useMemo<[number, number]>(() => {
+    if (userLocation) {
+      return [userLocation.lat, userLocation.lng]
     }
-  }
+    if (clinics.length > 0) {
+      return [clinics[0].lat, clinics[0].lng]
+    }
+    // Default center (New Delhi, India)
+    return [28.6139, 77.2090]
+  }, [userLocation, clinics])
+
+  // Calculate appropriate zoom level based on clinic distances
+  const zoom = useMemo(() => {
+    if (clinics.length === 0) return 12
+    const maxDistance = Math.max(...clinics.map(c => c.distance))
+    if (maxDistance < 2) return 15
+    if (maxDistance < 5) return 13
+    if (maxDistance < 10) return 12
+    return 11
+  }, [clinics])
   
   const getPriceLabel = (range: "low" | "medium" | "high", fee?: number) => {
-    if (fee) return `₹${fee}`
+    if (fee) return `${fee}`
     switch (range) {
-      case "low": return "₹"
-      case "medium": return "₹₹"
-      case "high": return "₹₹₹"
+      case "low": return "Affordable"
+      case "medium": return "Moderate"
+      case "high": return "Premium"
     }
   }
 
@@ -90,7 +100,7 @@ export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMap
     <div className="relative h-[400px] w-full rounded-xl overflow-hidden border">
       <MapContainer
         center={center}
-        zoom={12}
+        zoom={zoom}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
       >
@@ -98,27 +108,35 @@ export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMap
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapController center={center} zoom={12} />
+        <MapController center={center} zoom={zoom} />
         
-        {/* User location marker */}
+        {/* User location marker with accuracy circle */}
         {userLocation && (
-          <Marker 
-            position={userLocation}
-            icon={new Icon({
-              iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-              shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41]
-            })}
-          >
-            <Popup>
-              <div className="text-center">
-                <p className="font-semibold">Your Location</p>
-              </div>
-            </Popup>
-          </Marker>
+          <>
+            <Marker 
+              position={[userLocation.lat, userLocation.lng]}
+              icon={userLocationIcon}
+            >
+              <Popup>
+                <div className="text-center">
+                  <p className="font-semibold">Your Location</p>
+                  <p className="text-xs text-muted-foreground">
+                    {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+            <Circle 
+              center={[userLocation.lat, userLocation.lng]}
+              radius={200}
+              pathOptions={{
+                color: '#ef4444',
+                fillColor: '#ef4444',
+                fillOpacity: 0.1,
+                weight: 2
+              }}
+            />
+          </>
         )}
         
         {/* Clinic markers */}
@@ -132,7 +150,7 @@ export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMap
             }}
           >
             <Popup>
-              <div className="min-w-[200px] space-y-2">
+              <div className="min-w-[220px] space-y-2">
                 <h3 className="font-semibold text-base">{clinic.name}</h3>
                 <div className="flex items-center gap-2 flex-wrap">
                   {clinic.acceptsWalkIn && (
@@ -146,6 +164,8 @@ export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMap
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                   <span>{clinic.rating} ({clinic.reviewCount})</span>
+                  <span className="mx-1">|</span>
+                  <span>{clinic.distance} km away</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{clinic.address}</p>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -153,14 +173,29 @@ export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMap
                   <span>{clinic.hours}</span>
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" className="h-7 text-xs flex-1 gap-1">
+                  <Button 
+                    size="sm" 
+                    className="h-7 text-xs flex-1 gap-1"
+                    onClick={() => {
+                      window.open(`https://www.google.com/maps/dir/?api=1&destination=${clinic.lat},${clinic.lng}`, "_blank")
+                    }}
+                  >
                     <Navigation className="h-3 w-3" />
                     Directions
                   </Button>
-                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1">
-                    <Phone className="h-3 w-3" />
-                    Call
-                  </Button>
+                  {clinic.phone !== "Contact not available" && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="h-7 text-xs flex-1 gap-1"
+                      onClick={() => {
+                        window.open(`tel:${clinic.phone}`, "_self")
+                      }}
+                    >
+                      <Phone className="h-3 w-3" />
+                      Call
+                    </Button>
+                  )}
                 </div>
               </div>
             </Popup>
@@ -168,18 +203,20 @@ export function ClinicMap({ clinics, selectedClinic, onSelectClinic }: ClinicMap
         ))}
       </MapContainer>
       
-      {/* Locate button overlay */}
-      <div className="absolute top-4 right-4 z-[1000]">
-        <Button
-          size="sm"
-          variant="secondary"
-          className="gap-2 shadow-lg glass-card"
-          onClick={handleLocate}
-          disabled={isLocating}
-        >
-          <Navigation className={`h-4 w-4 ${isLocating ? "animate-pulse" : ""}`} />
-          {isLocating ? "Locating..." : "Use my location"}
-        </Button>
+      {/* Legend overlay */}
+      <div className="absolute bottom-4 left-4 z-[1000] bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border text-xs space-y-1">
+        <div className="flex items-center gap-2">
+          <div className="h-3 w-3 rounded-full bg-red-500"></div>
+          <span>Your Location</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+          <span>Hospital/Clinic</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-3 w-3 rounded-full bg-green-500"></div>
+          <span>Selected</span>
+        </div>
       </div>
     </div>
   )

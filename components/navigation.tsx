@@ -1,17 +1,20 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { 
   Timer, 
   Activity, 
   Stethoscope, 
   MapPin, 
-  Trophy,
-  Leaf
+  Leaf,
+  LogIn
 } from "lucide-react"
+import { SignInDialog } from "@/components/sign-in-dialog"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Activity },
@@ -19,6 +22,30 @@ const navItems = [
   { href: "/symptoms", label: "Symptom Triage", icon: Stethoscope },
   { href: "/clinics", label: "Find Clinics", icon: MapPin },
 ]
+
+function SignInButton() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+      >
+        <Button 
+          variant="default" 
+          size="sm" 
+          className="gap-2"
+          onClick={() => setIsOpen(true)}
+        >
+          <LogIn className="h-4 w-4" />
+          <span className="hidden sm:inline">Sign In</span>
+        </Button>
+      </motion.div>
+      <SignInDialog open={isOpen} onOpenChange={setIsOpen} />
+    </>
+  )
+}
 
 export function Navigation() {
   const pathname = usePathname()
@@ -74,16 +101,7 @@ export function Navigation() {
           })}
         </nav>
 
-        <motion.div 
-          className="flex items-center gap-3"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-primary/20 shadow-sm">
-            <Trophy className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold">40 pts</span>
-          </div>
-        </motion.div>
+        <SignInButton />
       </div>
 
       {/* Mobile Navigation */}
